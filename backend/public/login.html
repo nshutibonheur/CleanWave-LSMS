@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSMS — Login</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: #1a1a2e;
+        }
+
+        p.sub {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 18px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: #4361ee; }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4361ee;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #3451d1; }
+        button:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        #error-msg {
+            display: none;
+            background: #fee2e2;
+            color: #c0392b;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Welcome back</h2>
+    <p class="sub">Laundry Service Management System</p>
+
+    <div id="error-msg"></div>
+
+    <label for="phone">Phone number</label>
+    <input id="phone" type="tel" placeholder="e.g. 0788123456" autocomplete="username">
+
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+
+    <button id="login-btn" onclick="login()">Sign in</button>
+</div>
+
+<script>
+    async function login() {
+        const phone    = document.getElementById("phone").value.trim();
+        const password = document.getElementById("password").value;
+        const btn      = document.getElementById("login-btn");
+        const errDiv   = document.getElementById("error-msg");
+
+        errDiv.style.display = "none";
+
+        if (!phone || !password) {
+            showError("Please enter your phone number and password.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+
+        try {
+            const res  = await fetch("http://localhost:3000/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.token) {
+                showError(data.message || "Login failed. Check your credentials.");
+                return;
+            }
+
+            // Store token + role for subsequent authenticated requests
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("role",  data.role);
+            localStorage.setItem("name",  data.name);
+
+            const redirectMap = {
+                admin:   "index.html",
+                counter: "orders.html",
+                driver:  "delivery.html"
+            };
+
+            window.location.href = redirectMap[data.role] || "login.html";
+
+        } catch (err) {
+            showError("Cannot connect to the server. Please try again.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Sign in";
+        }
+    }
+
+    function showError(msg) {
+        const div = document.getElementById("error-msg");
+        div.textContent = msg;
+        div.style.display = "block";
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") login();
+    });
+</script>
+
+</body>
+</html>

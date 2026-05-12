@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSMS — Counter Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+        header {
+            background: #0f3460;
+            color: #fff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 { font-size: 18px; }
+
+        header button {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.4);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        main { padding: 28px; max-width: 900px; margin: 0 auto; }
+
+        section { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+        h2 { font-size: 16px; margin-bottom: 16px; color: #0f3460; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+
+        .form-row input, .form-row select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .form-row button {
+            padding: 9px 20px;
+            background: #0f3460;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 1px solid #eee; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+        tr:last-child td { border-bottom: none; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        #toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #0f3460; color: #fff;
+            padding: 12px 20px; border-radius: 10px;
+            font-size: 13px; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>LSMS &mdash; Counter</h1>
+    <div>
+        <span id="user-name" style="margin-right:14px; font-size:13px; opacity:0.8;"></span>
+        <button onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main>
+
+    <!-- New Customer -->
+    <section>
+        <h2>Register New Customer</h2>
+        <div class="form-row">
+            <input id="c_name"    placeholder="Full name">
+            <input id="c_phone"   placeholder="Phone">
+            <input id="c_email"   placeholder="Email (optional)" type="email">
+            <input id="c_address" placeholder="Address (optional)">
+            <button onclick="addCustomer()">Add Customer</button>
+        </div>
+    </section>
+
+    <!-- New Order -->
+    <section>
+        <h2>Create New Order</h2>
+        <div class="form-row">
+            <input id="o_customer_id" type="number" placeholder="Customer ID">
+            <input id="o_amount"      type="number" placeholder="Total amount (RWF)">
+            <button onclick="createOrder()">Create Order</button>
+        </div>
+    </section>
+
+    <!-- Orders list (read-only view for counter) -->
+    <section>
+        <h2>Current Orders</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Customer</th><th>Status</th><th>Amount (RWF)</th></tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+    const token = localStorage.getItem("token");
+    const role  = localStorage.getItem("role");
+
+    if (!token || role !== "counter") {
+        alert("Access denied. Counter staff only.");
+        window.location.href = "login.html";
+    }
+
+    document.getElementById("user-name").textContent = localStorage.getItem("name") || "";
+
+    function authHeaders() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        };
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.opacity = "1";
+        setTimeout(() => { t.style.opacity = "0"; }, 3000);
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    async function addCustomer() {
+        const full_name = document.getElementById("c_name").value.trim();
+        const phone     = document.getElementById("c_phone").value.trim();
+        const email     = document.getElementById("c_email").value.trim();
+        const address   = document.getElementById("c_address").value.trim();
+
+        if (!full_name || !phone) { showToast("Name and phone are required."); return; }
+
+        const res  = await fetch("http://localhost:3000/api/customers", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ full_name, phone, email, address })
+        });
+        const data = await res.json();
+        showToast(data.message || (data.errors && data.errors[0].msg));
+    }
+
+    async function createOrder() {
+        const customer_id  = Number(document.getElementById("o_customer_id").value);
+        const total_amount = Number(document.getElementById("o_amount").value);
+
+        if (!customer_id || !total_amount) { showToast("Customer ID and amount are required."); return; }
+
+        const res  = await fetch("http://localhost:3000/api/orders", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ customer_id, total_amount })
+        });
+        const data = await res.json();
+        showToast(data.message);
+        loadOrders();
+    }
+
+    async function loadOrders() {
+        const res  = await fetch("http://localhost:3000/api/orders", { headers: authHeaders() });
+
+        if (res.status === 401 || res.status === 403) { logout(); return; }
+
+        const data  = await res.json();
+        const tbody = document.getElementById("orders-body");
+        tbody.innerHTML = "";
+
+        data.forEach(o => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${o.id}</td>
+                <td>${o.full_name}</td>
+                <td><span class="status-badge">${o.status}</span></td>
+                <td>${Number(o.total_amount).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    loadOrders();
+</script>
+
+</body>
+</html>

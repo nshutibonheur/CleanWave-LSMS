@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  # ── MySQL Database ────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: lsms_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: lsms
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./lsms.sql:/docker-entrypoint-initdb.d/lsms.sql
+    # FIX: Removed the double "healthcheck:" key and fixed indentation
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Node.js Backend ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lsms_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/public:/app/public
+
+volumes:
+  db_data:
+    driver: local
