@@ -139,9 +139,10 @@
             localStorage.setItem("name",  data.name);
 
             const redirectMap = {
-                admin:   "index.html",
-                counter: "orders.html",
-                driver:  "delivery.html"
+                admin:       "index.html",
+                counter:     "orders.html",
+                driver:      "delivery.html",
+                technician:  "technician.html"
             };
 
             window.location.href = redirectMap[data.role] || "login.html";
