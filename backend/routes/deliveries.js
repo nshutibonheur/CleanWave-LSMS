@@ -10,7 +10,7 @@ const VALID_DELIVERY_STATUSES = ["pending", "on_route", "delivered"];
 router.get(
     "/",
     authenticateToken,
-    authorizeRole("admin", "driver"),
+    authorizeRole("admin", "driver", "technician"),
     (req, res) => {
         const sql = `
             SELECT
@@ -33,11 +33,11 @@ router.get(
     }
 );
 
-// ─── CREATE DELIVERY / ASSIGN DRIVER (admin only) ────────────────────────────
+//  CREATE DELIVERY / ASSIGN DRIVER 
 router.post(
     "/",
     authenticateToken,
-    authorizeRole("admin"),
+    authorizeRole("admin", "technician"),
     [
         body("order_id").isInt({ min: 1 }).withMessage("Valid order ID is required."),
         body("driver_id").isInt({ min: 1 }).withMessage("Valid driver ID is required.")
@@ -61,7 +61,7 @@ router.post(
     }
 );
 
-// ─── UPDATE DELIVERY STATUS (admin + driver) ─────────────────────────────────
+//UPDATE DELIVERY STATUS 
 router.put(
     "/:id",
     authenticateToken,

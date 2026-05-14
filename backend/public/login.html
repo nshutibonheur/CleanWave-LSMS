@@ -10,114 +10,221 @@
         body {
             font-family: Arial, sans-serif;
             background: #f0f2f5;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .brand h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .brand p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
         }
 
         .card {
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-            padding: 40px 36px;
-            width: 100%;
-            max-width: 380px;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
 
-        h2 {
-            font-size: 22px;
-            margin-bottom: 6px;
+        .card h2 {
+            font-size: 18px;
             color: #1a1a2e;
+            margin-bottom: 24px;
+            font-weight: 600;
         }
 
-        p.sub {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 28px;
+        .form-group {
+            margin-bottom: 16px;
         }
 
         label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            color: #444;
+            color: #555;
             margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         input {
             width: 100%;
-            padding: 10px 14px;
+            padding: 11px 14px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            margin-bottom: 18px;
             outline: none;
             transition: border-color 0.2s;
+            color: #222;
         }
 
-        input:focus { border-color: #4361ee; }
+        input:focus {
+            border-color: #4361ee;
+        }
 
-        button {
+        .btn-login {
             width: 100%;
             padding: 12px;
-            background: #4361ee;
+            background: #1a1a2e;
             color: #fff;
             border: none;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 8px;
             transition: background 0.2s;
         }
 
-        button:hover { background: #3451d1; }
-        button:disabled { background: #a0aec0; cursor: not-allowed; }
+        .btn-login:hover { background: #2d2d4e; }
+        .btn-login:disabled { background: #aaa; cursor: not-allowed; }
 
-        #error-msg {
-            display: none;
+        .error-msg {
             background: #fee2e2;
             color: #c0392b;
             border-radius: 8px;
             padding: 10px 14px;
             font-size: 13px;
             margin-bottom: 16px;
+            display: none;
         }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 20px;
+        }
+
+        .role-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .role-pill {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .pill-admin      { background: #1a1a2e; color: #fff; }
+        .pill-counter    { background: #0f3460; color: #fff; }
+        .pill-driver     { background: #065f46; color: #fff; }
+        .pill-technician { background: #7c3aed; color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Welcome back</h2>
-    <p class="sub">Laundry Service Management System</p>
+<div class="login-wrapper">
+    <div class="brand">
+        <h1>CleanWave</h1>
+        <p>Laundry Service Management System</p>
+    </div>
 
-    <div id="error-msg"></div>
+    <div class="card">
+        <h2>Sign in to your account</h2>
 
-    <label for="phone">Phone number</label>
-    <input id="phone" type="tel" placeholder="e.g. 0788123456" autocomplete="username">
+        <div class="error-msg" id="error-msg"></div>
 
-    <label for="password">Password</label>
-    <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="e.g. 0787921151" autocomplete="username">
+        </div>
 
-    <button id="login-btn" onclick="login()">Sign in</button>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+
+        <button class="btn-login" id="login-btn" onclick="login()">Sign In</button>
+
+        <div class="role-pills">
+            <span class="role-pill pill-admin">Admin</span>
+            <span class="role-pill pill-counter">Counter</span>
+            <span class="role-pill pill-driver">Driver</span>
+            <span class="role-pill pill-technician">Technician</span>
+        </div>
+    </div>
+
+    <p class="footer-note">CleanWave LSMS &copy; 2026 &mdash; SENG 8240</p>
 </div>
 
 <script>
+    // If already logged in redirect to correct dashboard
+    const existingToken = localStorage.getItem("token");
+    const existingRole  = localStorage.getItem("role");
+
+    if (existingToken && existingRole) {
+        redirectByRole(existingRole);
+    }
+
+    function redirectByRole(role) {
+        const pages = {
+            admin:      "index.html",
+            counter:    "orders.html",
+            driver:     "delivery.html",
+            technician: "technician.html"
+        };
+        window.location.href = pages[role] || "login.html";
+    }
+
+    function showError(msg) {
+        const el = document.getElementById("error-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+    }
+
+    function hideError() {
+        document.getElementById("error-msg").style.display = "none";
+    }
+
+    // Allow pressing Enter to submit
+    document.getElementById("password").addEventListener("keydown", e => {
+        if (e.key === "Enter") login();
+    });
+
+    document.getElementById("phone").addEventListener("keydown", e => {
+        if (e.key === "Enter") login();
+    });
+
     async function login() {
+        hideError();
+
         const phone    = document.getElementById("phone").value.trim();
         const password = document.getElementById("password").value;
         const btn      = document.getElementById("login-btn");
-        const errDiv   = document.getElementById("error-msg");
-
-        errDiv.style.display = "none";
 
         if (!phone || !password) {
             showError("Please enter your phone number and password.");
             return;
         }
 
-        btn.disabled = true;
-        btn.textContent = "Signing in…";
+        btn.disabled    = true;
+        btn.textContent = "Signing in...";
 
         try {
             const res  = await fetch("http://localhost:3000/api/auth/login", {
@@ -128,43 +235,27 @@
 
             const data = await res.json();
 
-            if (!res.ok || !data.token) {
-                showError(data.message || "Login failed. Check your credentials.");
+            if (!res.ok) {
+                showError(data.message || "Login failed. Please check your credentials.");
+                btn.disabled    = false;
+                btn.textContent = "Sign In";
                 return;
             }
 
-            // Store token + role for subsequent authenticated requests
+            // Save token, role, and name
             localStorage.setItem("token", data.token);
             localStorage.setItem("role",  data.role);
             localStorage.setItem("name",  data.name);
 
-            const redirectMap = {
-                admin:       "index.html",
-                counter:     "orders.html",
-                driver:      "delivery.html",
-                technician:  "technician.html"
-            };
-
-            window.location.href = redirectMap[data.role] || "login.html";
+            // Redirect based on role
+            redirectByRole(data.role);
 
         } catch (err) {
-            showError("Cannot connect to the server. Please try again.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Sign in";
+            showError("Cannot connect to server. Make sure the backend is running.");
+            btn.disabled    = false;
+            btn.textContent = "Sign In";
         }
     }
-
-    function showError(msg) {
-        const div = document.getElementById("error-msg");
-        div.textContent = msg;
-        div.style.display = "block";
-    }
-
-    // Allow Enter key to submit
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") login();
-    });
 </script>
 
 </body>

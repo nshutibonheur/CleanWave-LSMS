@@ -13,7 +13,7 @@ db.connect((err) => {
         console.error("DB connection failed:", err.message);
         process.exit(1);
     }
-    console.log("MySQL Connected ✅");
+console.log("MySQL Connected to database: " + process.env.DB_NAME);
 });
 
 module.exports = db;

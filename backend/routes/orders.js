@@ -10,7 +10,7 @@ const VALID_STATUSES = ["received", "sorting", "washing", "drying", "ironing", "
 router.get(
     "/",
     authenticateToken,
-    authorizeRole("admin", "counter"),
+    authorizeRole("admin", "counter", "technician"),
     (req, res) => {
         const sql = `
             SELECT

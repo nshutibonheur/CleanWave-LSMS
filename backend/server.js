@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const router = require("./routes/auth");
 
 const app = express();
 
@@ -8,12 +9,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // ROUTES 
-app.use("/api/auth",       require("./routes/auth"));
-app.use("/api/customers",  require("./routes/customers"));
-app.use("/api/orders",     require("./routes/orders"));
-app.use("/api/payments",   require("./routes/payments"));
-app.use("/api/deliveries", require("./routes/deliveries"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/customers", require("./routes/customers"));
+app.use("/api/orders", require("./routes/orders"));
+app.use("/api/payments", require("./routes/payments"));
+app.use("/api/deliveries",  require("./routes/deliveries"));
+
 
 //  HEALTH CHECK 
 app.get("/api/health", (req, res) => {
@@ -31,8 +34,8 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: "An internal server error occurred." });
 });
 
-// START SERVER 
+//= START SERVER 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🔥 LSMS server running on port ${PORT}`);
+    console.log(` LSMS server running on port ${PORT}`);
 });

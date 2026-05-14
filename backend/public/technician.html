@@ -9,7 +9,7 @@
         body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
 
         header {
-            background: #7c3aed;
+            background: #4e4165;
             color: #fff;
             padding: 14px 28px;
             display: flex;
@@ -29,23 +29,42 @@
             font-size: 13px;
         }
 
-        main { padding: 28px; max-width: 960px; margin: 0 auto; }
+        main { padding: 28px; max-width: 1000px; margin: 0 auto; }
 
-        section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 24px;
+        /* Pipeline overview strip */
+        .pipeline {
+            display: flex;
+            gap: 0;
             margin-bottom: 24px;
+            border-radius: 12px;
+            overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
         }
 
-        h2 {
-            font-size: 16px;
-            margin-bottom: 16px;
-            color: #7c3aed;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+        .pipeline-step {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #fff;
         }
+
+        .step-received  { background: #6b21a8; }
+        .step-sorting   { background: #0369a1; }
+        .step-washing   { background: #1d4ed8; }
+        .step-drying    { background: #854d0e; }
+        .step-ironing   { background: #9d174d; }
+        .step-ready     { background: #166534; }
+        .step-delivered { background: #334155; }
+
+        section { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+        h2 { font-size: 16px; margin-bottom: 6px; color: #7c3aed; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        .subtitle { font-size: 12px; color: #888; margin-bottom: 16px; margin-top: 4px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 1px solid #eee; }
@@ -59,64 +78,44 @@
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .status-received  { background: #f3e8ff; color: #6b21a8; }
-        .status-sorting   { background: #e0f2fe; color: #0369a1; }
-        .status-washing   { background: #dbeafe; color: #1d4ed8; }
-        .status-drying    { background: #fef9c3; color: #854d0e; }
-        .status-ironing   { background: #fce7f3; color: #9d174d; }
-        .status-ready     { background: #dcfce7; color: #166534; }
-        .status-delivered { background: #f1f5f9; color: #334155; }
+        .status-received  { background:#f3e8ff; color:#6b21a8; }
+        .status-sorting   { background:#e0f2fe; color:#0369a1; }
+        .status-washing   { background:#dbeafe; color:#1d4ed8; }
+        .status-drying    { background:#fef9c3; color:#854d0e; }
+        .status-ironing   { background:#fce7f3; color:#9d174d; }
+        .status-ready     { background:#dcfce7; color:#166534; }
+        .status-delivered { background:#f1f5f9; color:#334155; }
 
-        .action-btns { display: flex; flex-wrap: wrap; gap: 4px; }
+        .btn-group { display: flex; gap: 5px; flex-wrap: wrap; }
 
-        .action-btns button {
+        .btn-group button {
             padding: 4px 10px;
-            font-size: 11px;
             border: 1px solid #ddd;
             background: #fff;
-            border-radius: 5px;
-            cursor: pointer;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 600;
+            cursor: pointer;
             transition: background 0.15s;
         }
 
-        .action-btns button:hover { background: #f0f0f0; }
-        .action-btns button.active-stage {
-            background: #7c3aed;
-            color: #fff;
-            border-color: #7c3aed;
+        .btn-washing  { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #bfdbfe !important; }
+        .btn-drying   { background: #fef9c3 !important; color: #854d0e !important; border-color: #fde68a !important; }
+        .btn-ironing  { background: #fce7f3 !important; color: #9d174d !important; border-color: #fbcfe8 !important; }
+        .btn-ready    { background: #dcfce7 !important; color: #166534 !important; border-color: #bbf7d0 !important; }
+
+        .btn-group button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
         }
 
-        .stats-row {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 0;
-        }
-
-        .stat-card {
-            flex: 1;
-            min-width: 120px;
-            background: #faf5ff;
-            border: 1px solid #e9d5ff;
-            border-radius: 10px;
-            padding: 16px 20px;
+        .empty-state {
             text-align: center;
-        }
-
-        .stat-card .stat-num {
-            font-size: 28px;
-            font-weight: 700;
-            color: #7c3aed;
-        }
-
-        .stat-card .stat-label {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
+            padding: 40px;
+            color: #aaa;
+            font-size: 14px;
         }
 
         #toast {
@@ -126,19 +125,12 @@
             font-size: 13px; opacity: 0; transition: opacity 0.3s;
             pointer-events: none;
         }
-
-        .empty-row td {
-            text-align: center;
-            color: #aaa;
-            padding: 24px;
-            font-size: 13px;
-        }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>LSMS &mdash; Technician</h1>
+    <h1>LSMS &mdash; Technician Dashboard</h1>
     <div>
         <span id="user-name" style="margin-right:14px; font-size:13px; opacity:0.8;"></span>
         <button onclick="logout()">Logout</button>
@@ -147,43 +139,34 @@
 
 <main>
 
-    <!-- Stats summary -->
-    <section>
-        <h2>Today&rsquo;s Overview</h2>
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-num" id="stat-total">—</div>
-                <div class="stat-label">Total Orders</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-num" id="stat-active">—</div>
-                <div class="stat-label">In Progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-num" id="stat-ready">—</div>
-                <div class="stat-label">Ready</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-num" id="stat-delivered">—</div>
-                <div class="stat-label">Delivered</div>
-            </div>
-        </div>
-    </section>
+    <!-- Pipeline overview -->
+    <div class="pipeline">
+        <div class="pipeline-step step-received">Received</div>
+        <div class="pipeline-step step-sorting">Sorting</div>
+        <div class="pipeline-step step-washing">Washing</div>
+        <div class="pipeline-step step-drying">Drying</div>
+        <div class="pipeline-step step-ironing">Ironing</div>
+        <div class="pipeline-step step-ready">Ready</div>
+        <div class="pipeline-step step-delivered">Delivered</div>
+    </div>
 
-    <!-- Orders table with stage controls -->
+    <!-- Orders in progress -->
     <section>
-        <h2>Orders — Update Stage</h2>
+        <h2>Laundry Orders — Pipeline</h2>
+        <p class="subtitle">Update each order as it moves through the washing pipeline. Only statuses valid for the current stage are enabled.</p>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Order ID</th>
                     <th>Customer</th>
-                    <th>Current Stage</th>
+                    <th>Current Status</th>
                     <th>Amount (RWF)</th>
-                    <th>Move To</th>
+                    <th>Update Stage</th>
                 </tr>
             </thead>
-            <tbody id="orders-body"></tbody>
+            <tbody id="orders-body">
+                <tr><td colspan="5" class="empty-state">Loading orders...</td></tr>
+            </tbody>
         </table>
     </section>
 
@@ -221,7 +204,14 @@
         window.location.href = "login.html";
     }
 
-    const STAGES = ["received", "sorting", "washing", "drying", "ironing", "ready", "delivered"];
+    // Pipeline stages the technician can set
+    // Each stage only becomes available when order is at a specific prior stage
+    const techStages = [
+        { label: "→ Washing", status: "washing", cls: "btn-washing", allowedFrom: ["received", "sorting"] },
+        { label: "→ Drying",  status: "drying",  cls: "btn-drying",  allowedFrom: ["washing"] },
+        { label: "→ Ironing", status: "ironing", cls: "btn-ironing", allowedFrom: ["drying"] },
+        { label: "→ Ready",   status: "ready",   cls: "btn-ready",   allowedFrom: ["ironing"] },
+    ];
 
     async function loadOrders() {
         const res = await fetch("http://localhost:3000/api/orders", { headers: authHeaders() });
@@ -232,21 +222,15 @@
         const tbody = document.getElementById("orders-body");
         tbody.innerHTML = "";
 
-        // Update stats
-        document.getElementById("stat-total").textContent     = data.length;
-        document.getElementById("stat-active").textContent    = data.filter(o => !["ready","delivered"].includes(o.status)).length;
-        document.getElementById("stat-ready").textContent     = data.filter(o => o.status === "ready").length;
-        document.getElementById("stat-delivered").textContent = data.filter(o => o.status === "delivered").length;
+        // Filter out delivered orders — technician only works on active ones
+        const active = data.filter(o => o.status !== "delivered");
 
-        if (data.length === 0) {
-            const tr = document.createElement("tr");
-            tr.className = "empty-row";
-            tr.innerHTML = `<td colspan="5">No orders found.</td>`;
-            tbody.appendChild(tr);
+        if (active.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No active orders in the pipeline.</td></tr>`;
             return;
         }
 
-        data.forEach(order => {
+        active.forEach(order => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${order.id}</td>
@@ -257,13 +241,14 @@
             `;
 
             const btnGroup = document.createElement("div");
-            btnGroup.className = "action-btns";
+            btnGroup.className = "btn-group";
 
-            STAGES.forEach(stage => {
+            techStages.forEach(({ label, status, cls, allowedFrom }) => {
                 const btn = document.createElement("button");
-                btn.textContent = stage;
-                if (stage === order.status) btn.classList.add("active-stage");
-                btn.onclick = () => updateStage(order.id, stage);
+                btn.textContent = label;
+                btn.className   = cls;
+                btn.disabled    = !allowedFrom.includes(order.status);
+                btn.onclick     = () => updateOrderStatus(order.id, status);
                 btnGroup.appendChild(btn);
             });
 
@@ -272,14 +257,14 @@
         });
     }
 
-    async function updateStage(id, status) {
+    async function updateOrderStatus(id, status) {
         const res  = await fetch(`http://localhost:3000/api/orders/${id}`, {
             method: "PUT",
             headers: authHeaders(),
             body: JSON.stringify({ status })
         });
         const data = await res.json();
-        showToast(data.message || `Order #${id} updated to ${status}.`);
+        showToast(data.message || "Status updated.");
         loadOrders();
     }
 

@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 
-// ─── REGISTER ────────────────────────────────────────────────────────────────
+// REGISTER 
 router.post(
     "/register",
     [
@@ -44,7 +44,7 @@ router.post(
     }
 );
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
+//  LOGIN 
 router.post(
     "/login",
     [

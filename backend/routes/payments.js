@@ -6,7 +6,7 @@ const { authenticateToken, authorizeRole } = require("../middleware/auth.middlew
 
 const VALID_METHODS = ["cash", "mobile_money", "card"];
 
-// ─── GET ALL PAYMENTS (admin only) ───────────────────────────────────────────
+// GET ALL PAYMENTS 
 router.get(
     "/",
     authenticateToken,
@@ -32,7 +32,7 @@ router.get(
     }
 );
 
-// ─── CREATE PAYMENT (admin + counter) ────────────────────────────────────────
+//  CREATE PAYMENT
 router.post(
     "/",
     authenticateToken,
@@ -62,5 +62,41 @@ router.post(
         );
     }
 );
+// update payment
+router.put("/:id", (req, res) => {
+
+    const { amount, payment_method } = req.body;
+
+    const sql = `
+        UPDATE payments
+        SET amount = ?, payment_method = ?
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql,
+        [amount, payment_method, req.params.id],
+        (err, result) => {
+
+            if (err) {
+                console.log(err);
+
+                return res.status(500).json({
+                    message: "Payment update failed"
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    message: "Payment not found"
+                });
+            }
+
+            res.json({
+                message: "Payment updated successfully"
+            });
+        }
+    );
+});
 
 module.exports = router;

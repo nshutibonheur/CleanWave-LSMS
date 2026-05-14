@@ -79,9 +79,6 @@
         .status-ironing   { background:#fce7f3; color:#9d174d; }
         .status-ready     { background:#dcfce7; color:#166534; }
         .status-delivered { background:#f1f5f9; color:#334155; }
-        .status-on_route  { background:#dbeafe; color:#1d4ed8; }
-        .status-pending   { background:#fef9c3; color:#854d0e; }
-        .status-failed    { background:#fee2e2; color:#c0392b; }
 
         .action-btns { display: flex; flex-wrap: wrap; gap: 4px; }
 
@@ -171,28 +168,12 @@
 
     <!-- Payments -->
     <section>
-        <h2>Payments</h2>
+        <h2>Payment History</h2>
         <table>
             <thead>
-                <tr><th>ID</th><th>Order ID</th><th>Amount (RWF)</th><th>Method</th><th>Date</th></tr>
+                <tr><th>ID</th><th>Customer</th><th>Order ID</th><th>Amount (RWF)</th><th>Method</th><th>Date</th></tr>
             </thead>
             <tbody id="payments-body"></tbody>
-        </table>
-    </section>
-
-    <!-- Assign Delivery -->
-    <section>
-        <h2>Assign Delivery</h2>
-        <div class="payment-form" style="margin-bottom:16px;">
-            <input id="del_order_id"  type="number" placeholder="Order ID" style="width:120px;">
-            <input id="del_driver_id" type="number" placeholder="Driver ID" style="width:120px;">
-            <button onclick="assignDelivery()">Assign to Driver</button>
-        </div>
-        <table>
-            <thead>
-                <tr><th>Delivery ID</th><th>Order ID</th><th>Customer</th><th>Driver</th><th>Status</th></tr>
-            </thead>
-            <tbody id="deliveries-body"></tbody>
         </table>
     </section>
 </main>
@@ -337,55 +318,37 @@
         showToast(data.message);
     }
 
-    // ── Load Payments ────────────────────────────────────────────────────────
+    // ── Load Payments ─────────────────────────────────────────────────────────
     async function loadPayments() {
         const res  = await fetch("http://localhost:3000/api/payments", { headers: authHeaders() });
-        if (res.status === 401 || res.status === 403) { logout(); return; }
         const data = await res.json();
         const tbody = document.getElementById("payments-body");
         tbody.innerHTML = "";
+
         data.forEach(p => {
             const tr = document.createElement("tr");
-            const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "—";
-            tr.innerHTML = `<td>${p.id}</td><td>${p.order_id}</td><td>${Number(p.amount).toLocaleString()}</td><td>${p.payment_method}</td><td>${date}</td>`;
+            const date = p.payment_date ? new Date(p.payment_date).toLocaleDateString() : "—";
+            const methodBadge = {
+                cash: "background:#dcfce7;color:#166534",
+                mobile_money: "background:#dbeafe;color:#1d4ed8",
+                card: "background:#f3e8ff;color:#6b21a8"
+            }[p.payment_method] || "";
+            tr.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.full_name}</td>
+                <td>${p.order_id}</td>
+                <td>${Number(p.amount).toLocaleString()}</td>
+                <td><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;${methodBadge}">${p.payment_method.replace("_"," ")}</span></td>
+                <td>${date}</td>
+            `;
             tbody.appendChild(tr);
         });
-    }
-
-    // ── Load Deliveries ───────────────────────────────────────────────────────
-    async function loadDeliveries() {
-        const res  = await fetch("http://localhost:3000/api/deliveries", { headers: authHeaders() });
-        if (res.status === 401 || res.status === 403) { logout(); return; }
-        const data = await res.json();
-        const tbody = document.getElementById("deliveries-body");
-        tbody.innerHTML = "";
-        data.forEach(d => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${d.id}</td><td>${d.order_id}</td><td>${d.customer_name || "—"}</td><td>${d.driver_name || d.driver_id || "—"}</td><td><span class="status-badge status-${d.status}">${d.status}</span></td>`;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // ── Assign Delivery ───────────────────────────────────────────────────────
-    async function assignDelivery() {
-        const order_id  = Number(document.getElementById("del_order_id").value);
-        const driver_id = Number(document.getElementById("del_driver_id").value);
-        if (!order_id || !driver_id) { showToast("Order ID and Driver ID are required."); return; }
-        const res  = await fetch("http://localhost:3000/api/deliveries", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({ order_id, driver_id })
-        });
-        const data = await res.json();
-        showToast(data.message || "Delivery assigned.");
-        loadDeliveries();
     }
 
     // ── Init ─────────────────────────────────────────────────────────────────
     loadOrders();
     loadCustomers();
     loadPayments();
-    loadDeliveries();
 </script>
 
 </body>

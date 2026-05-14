@@ -8,13 +8,12 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: lsms
+      MYSQL_DATABASE: lsms_sql
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./lsms.sql:/docker-entrypoint-initdb.d/lsms.sql
-    # FIX: Removed the double "healthcheck:" key and fixed indentation
+      - ./lms_sql.sql:/docker-entrypoint-initdb.d/lms_sql.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s

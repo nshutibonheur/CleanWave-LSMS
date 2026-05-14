@@ -4,7 +4,7 @@ const db = require("../db");
 const { body, validationResult } = require("express-validator");
 const { authenticateToken, authorizeRole } = require("../middleware/auth.middleware");
 
-// ─── GET ALL CUSTOMERS (admin + counter) ─────────────────────────────────────
+//  GET ALL CUSTOMERS 
 router.get(
     "/",
     authenticateToken,
@@ -17,7 +17,7 @@ router.get(
     }
 );
 
-// ─── CREATE CUSTOMER (admin + counter) ───────────────────────────────────────
+// CREATE CUSTOMER 
 router.post(
     "/",
     authenticateToken,
@@ -44,5 +44,40 @@ router.post(
         });
     }
 );
+// update customer
+router.put("/:id", (req, res) => {
 
+    const { full_name, phone, email, address } = req.body;
+
+    const sql = `
+        UPDATE customers
+        SET full_name = ?, phone = ?, email = ?, address = ?
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql,
+        [full_name, phone, email, address, req.params.id],
+        (err, result) => {
+
+            if (err) {
+                console.log(err);
+
+                return res.status(500).json({
+                    message: "Customer update failed"
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    message: "Customer not found"
+                });
+            }
+
+            res.json({
+                message: "Customer updated successfully"
+            });
+        }
+    );
+});
 module.exports = router;
