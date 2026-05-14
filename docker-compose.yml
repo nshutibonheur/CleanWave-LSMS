@@ -13,7 +13,7 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./lms_sql.sql:/docker-entrypoint-initdb.d/lms_sql.sql
+         - ./lms_sql.sql:/docker-entrypoint-initdb.d/lms_sql.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
@@ -29,7 +29,8 @@ services:
     container_name: lsms_backend
     restart: unless-stopped
     env_file:
-      - ./backend/.env.docker
+      - ./backend/.env
+
     ports:
       - "3000:3000"
     depends_on:
